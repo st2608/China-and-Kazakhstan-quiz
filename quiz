@@ -1,0 +1,246 @@
+index.html 
+Чтобы развернуть этот интерактивный квиз на Vercel за пару минут, тебе понадобится один файл, который Vercel превратит в готовый сайт.
+Пошаговая инструкция для Vercel:
+ * Создай у себя на компьютере пустую папку (например, назови её esd-quiz).
+ * Внутри этой папки создай файл с именем index.html и вставь туда код, указанный ниже.
+ * Зайди на vercel.com (войди под своим аккаунтом).
+ * Нажми кнопку Add New... \rightarrow Project и загрузи эту папку (или перетащи её в окно браузера).
+ * Нажми Deploy. Vercel мгновенно выдаст тебе готовую ссылку на сайт, которую можно открывать на любых устройствах и скидывать кому угодно!
+Скопируй этот код в файл index.html:
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESD Quiz: China vs Kazakhstan</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f4f7f6 0%, #e9ecef 100%);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 600px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .question { 
+            font-size: 20px; 
+            font-weight: 700; 
+            margin-bottom: 24px; 
+            color: #1b4332; 
+            line-height: 1.4;
+        }
+        .options { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        button.option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 16px 20px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            color: #333;
+        }
+        button.option:hover { 
+            background: #e9ecef; 
+            border-color: #ced4da;
+        }
+        button.option.correct { 
+            background: #d8f3dc; 
+            border-color: #2d6a4f; 
+            color: #081c15; 
+            font-weight: 600; 
+        }
+        button.option.wrong { 
+            background: #ffe5d9; 
+            border-color: #d90429; 
+            color: #590d22; 
+            font-weight: 600; 
+        }
+        #feedback { 
+            margin-top: 20px; 
+            font-size: 16px; 
+            line-height: 1.5; 
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+        #feedback.show { display: block; }
+        #next-btn {
+            margin-top: 24px;
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+            display: none;
+        }
+        #next-btn:hover { background: #1b4332; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="quiz-container">
+    <div class="header">
+        <span id="progress">Вопрос 1 из 4</span>
+        <span id="score-tracker">Счет: 0</span>
+    </div>
+    <div class="question" id="question-text">Загрузка вопроса...</div>
+    <div class="options" id="options-container"></div>
+    <div id="feedback"></div>
+    <button id="next-btn" onclick="nextQuestion()">Следующий вопрос</button>
+</div>
+
+<script>
+    const quizData = [
+        {
+            question: "Какая национальная концепция лежит в основе экологического образования в Китае?",
+            options: [
+                "«Зеленый рост» (Green Growth)",
+                "«Экологическая цивилизация» (Ecological Civilization)",
+                "«Умный город» (Smart City)"
+            ],
+            correct: 1,
+            explanation: "Правильно! В Китае с 2012 года концепция «Экологической цивилизации» закреплена на государственном уровне и пронизывает всю систему образования."
+        },
+        {
+            question: "Какой пилотный город в Китае известен своими «нулевыми» школьными эко-кампусами (Zero-Waste Campuses)?",
+            options: [
+                "Пекин",
+                "Шанхай",
+                "Шэньчжэнь"
+            ],
+            correct: 2,
+            explanation: "Верно! Шэньчжэнь выступает главным пилотным центром «Zero-Waste City», где школы проводят аудит ресурсов и внедряют циркулярную экономику."
+        },
+        {
+            question: "Какая методология используется в казахстанской национальной программе «Жасыл Урпак» (NXplorers)?",
+            options: [
+                "Системное мышление (Systems Thinking) и STEAM",
+                "Исключительно теоретическое заучивание эко-законов",
+                "Только онлайн-тестирование по биологии"
+            ],
+            correct: 0,
+            explanation: "Точно! Программа учит школьников системному подходу к взаимосвязи еды, воды и энергии через практику STEAM."
+        },
+        {
+            question: "В чем главное отличие подхода к эко-образованию в Китае от Казахстана?",
+            options: [
+                "В Казахстане эко-образование полностью обязательное во всех предметах",
+                "В Китае это системный гос. мандат и аудит кампусов, а в РК преобладают гранты, НПО и инициативы снизу",
+                "Разницы нет никакой"
+            ],
+            correct: 1,
+            explanation: "Совершенно верно! В Китае это жесткая вертикальная система со школьными аудитами, а в Казахстане силен вклад волонтеров, эко-хабов и проектов вроде Zhasyl El."
+        }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadQuestion() {
+        answered = false;
+        let q = quizData[currentQuestion];
+        document.getElementById("progress").innerText = `Вопрос ${currentQuestion + 1} из ${quizData.length}`;
+        document.getElementById("score-tracker").innerText = `Счет: ${score}`;
+        document.getElementById("question-text").innerText = q.question;
+        
+        let optionsHtml = "";
+        q.options.forEach((opt, index) => {
+            optionsHtml += `<button class="option" onclick="selectOption(${index})">${opt}</button>`;
+        });
+        document.getElementById("options-container").innerHTML = optionsHtml;
+        
+        let feedbackEl = document.getElementById("feedback");
+        feedbackEl.className = "";
+        feedbackEl.innerText = "";
+        
+        document.getElementById("next-btn").style.display = "none";
+    }
+
+    function selectOption(index) {
+        if (answered) return;
+        answered = true;
+
+        let q = quizData[currentQuestion];
+        let buttons = document.querySelectorAll(".option");
+        
+        buttons.forEach((btn, idx) => {
+            if (idx === q.correct) btn.classList.add("correct");
+            if (idx === index && idx !== q.correct) btn.classList.add("wrong");
+            btn.style.cursor = "default";
+        });
+
+        let feedbackEl = document.getElementById("feedback");
+        feedbackEl.classList.add("show");
+
+        if (index === q.correct) {
+            score++;
+            feedbackEl.style.background = "#d8f3dc";
+            feedbackEl.style.color = "#081c15";
+            feedbackEl.innerHTML = "<strong>Верно!</strong> " + q.explanation;
+        } else {
+            feedbackEl.style.background = "#ffe5d9";
+            feedbackEl.style.color = "#590d22";
+            feedbackEl.innerHTML = "<strong>Не совсем.</strong> " + q.explanation;
+        }
+
+        document.getElementById("score-tracker").innerText = `Счет: ${score}`;
+        
+        let nextBtn = document.getElementById("next-btn");
+        nextBtn.style.display = "block";
+        if (currentQuestion === quizData.length - 1) {
+            nextBtn.innerText = "Пройти заново";
+        } else {
+            nextBtn.innerText = "Следующий вопрос";
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+        if (currentQuestion < quizData.length) {
+            loadQuestion();
+        } else {
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+        }
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
+
